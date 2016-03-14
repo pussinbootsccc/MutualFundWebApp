@@ -1,0 +1,156 @@
+package formbeans;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.mybeans.form.FormBean;
+
+public class TransactionDayForm extends FormBean {
+
+    private String[] fundIds;
+    private String[] fundPrices;
+    private String date;
+
+    public String[] getFundIds() {
+        return fundIds;
+    }
+
+    public void setFundIds(String[] fundIds) {
+        this.fundIds = fundIds;
+    }
+
+    public String[] getFundPrices() {
+        return fundPrices;
+    }
+
+    public void setFundPrices(String[] fundPrices) {
+        this.fundPrices = fundPrices;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = trimAndConvert(date, "<>\"");
+    }
+
+    // To integrate all problems.
+    @Override
+    public List<String> getValidationErrors() {
+        List<String> errors = new ArrayList<String>();
+        getFundPricesErrors(errors);
+        getFundIdErrors(errors);
+        getDateErrors(errors);
+
+        if (errors.size() > 0) {
+            return errors;
+        }
+        return errors;
+    }
+
+    // To check input price problems.
+    private void getFundPricesErrors(List<String> errors) {
+        if (fundPrices == null) {
+            errors.add("Price is require");
+            return;
+        }
+        if (fundIds != null && fundPrices != null && fundIds.length != fundPrices.length) {
+            errors.add("Illegal request");
+            return;
+        }
+        double[] fundPricesValue = new double[fundPrices.length];
+        for (int i = 0; i < fundPrices.length; i++) {
+            if (fundPrices[i] == null) {
+                errors.add("Price field is required");
+                return;
+            }
+            if (fundPrices[i].indexOf(".") != -1 && (fundPrices[i].length() - 1 - fundPrices[i].indexOf(".")) > 2) {
+                errors.add("Price should be within two decimal places");
+                return;
+            }
+            try {
+                fundPricesValue[i] = Double.valueOf(fundPrices[i]);
+            } catch (Exception e) {
+                errors.add("Please enter valid number. No letter, character or symbol");
+                return;
+            }
+            if (fundPricesValue[i] < 0.01 || fundPricesValue[i] > 10000) {
+                errors.add("Price should be within 0.01 and 10000");
+                return;
+            }
+        }
+    }
+
+    // To check fund ID problems.
+    private void getFundIdErrors(List<String> errors) {
+        if (fundIds == null) {
+            errors.add("Fund ID cannot found");
+            return;
+        }
+        for (int i = 0; i < fundIds.length; i++) {
+            if (fundIds[i] == null) {
+                errors.add("Fund ID field is required");
+                return;
+            }
+            try {
+                Integer.valueOf(fundIds[i]);
+            } catch (Exception e) {
+                errors.add("Fund ID should be number");
+                return;
+            }
+        }
+    }
+
+    // To check date format problems.
+    private void getDateErrors(List<String> errors) {
+        if (getDateValue(date) == null) {
+            errors.add("Illegal date format");
+        }
+    }
+
+    private Date getDateValue(String dateString) {
+        dateString = dateString + " 00:00:00";
+        Date date = null;
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setLenient(false);
+        try {
+            date = sdf.parse(dateString);
+        } catch (ParseException e) {
+            return date;
+        }
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int year = cal.get(Calendar.YEAR);
+        if (year > 2020) {
+            return null;
+        }
+        return date;
+    }
+
+    public Date getDateValue() {
+        return getDateValue(date);
+    }
+
+    public double[] getPriceValues() {
+        double[] values = new double[fundPrices.length];
+        for (int i = 0; i < values.length; ++i) {
+            values[i] = Double.valueOf(fundPrices[i]);
+        }
+        return values;
+    }
+
+    public long[] getIdValues() {
+        long[] values = new long[fundIds.length];
+        for (int i = 0; i < values.length; ++i) {
+            values[i] = Long.valueOf(fundIds[i]);
+        }
+        return values;
+    }
+}
