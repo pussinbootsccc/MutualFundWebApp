@@ -1,9 +1,5 @@
 package databeans;
 
-/**
- * View bean, used to save the history info of a specific fund;
- * @author Zhihao Ji
- */
 public class FundHistoryView {
     private String date;
     private String price;

@@ -17,10 +17,6 @@ import model.CustomerDAO;
 import model.Model;
 import model.TransactionDAO;
 
-/**
- * @author Zhihao Ji
- * @since 01/20/2016
- */
 public class DepositCheckAction extends Action {
 
 	private FormBeanFactory<DepositCheckForm> formBeanFactory = FormBeanFactory.getInstance(DepositCheckForm.class);
